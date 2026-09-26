@@ -1,0 +1,6 @@
+{
+  "name": "Bright Light Integrated Services",
+  "description": "Official corporate portal of Bright Light Integrated Services (RC: 8162390). Providing premier Healthcare & Medical Supplies, Fumigation & Pest Control, Accredited Professional Training, and Corporate Rentals across Nigeria.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

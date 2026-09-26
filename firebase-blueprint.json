@@ -1,0 +1,521 @@
+{
+  "entities": {
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized Bright Light administrator record.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 200
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "createdAt"]
+    },
+    "SiteSettings": {
+      "title": "SiteSettings",
+      "description": "Editable company brand logo, CEO leadership profile, and 4 service division images.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "logoImage": {
+          "type": "string",
+          "maxLength": 950000
+        },
+        "ceoPhoto": {
+          "type": "string",
+          "maxLength": 950000
+        },
+        "ceoName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "ceoTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "serviceMedicalImage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 950000
+        },
+        "serviceFumigationImage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 950000
+        },
+        "serviceTrainingImage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 950000
+        },
+        "serviceRentalsImage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 950000
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "logoImage",
+        "ceoPhoto",
+        "ceoName",
+        "ceoTitle",
+        "serviceMedicalImage",
+        "serviceFumigationImage",
+        "serviceTrainingImage",
+        "serviceRentalsImage",
+        "updatedAt"
+      ]
+    },
+    "PhotoItem": {
+      "title": "PhotoItem",
+      "description": "Operational photo displayed in the website gallery and homepage showcase.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "category": {
+          "type": "string",
+          "enum": ["fumigation", "medical", "training", "rentals", "corporate"],
+          "maxLength": 32
+        },
+        "image": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 950000
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "dateTag": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "featuredOnHome": {
+          "type": "boolean"
+        },
+        "isCustomUpload": {
+          "type": "boolean"
+        },
+        "authorUid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "category",
+        "image",
+        "description",
+        "location",
+        "dateTag",
+        "featuredOnHome",
+        "isCustomUpload",
+        "authorUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "QuoteRequest": {
+      "title": "QuoteRequest",
+      "description": "Customer service enquiry submitted via the website Make Enquiry form.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "organization": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "services": {
+          "type": "array",
+          "description": "Bounded list of requested service IDs (max 20)."
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "reviewed", "contacted"],
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "organization",
+        "phone",
+        "email",
+        "services",
+        "state",
+        "notes",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TrainingRegistration": {
+      "title": "TrainingRegistration",
+      "description": "Professional healthcare training enrollment submitted from the Training page.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "fullName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "organization": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "course": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250
+        },
+        "trainingModel": {
+          "type": "string",
+          "enum": ["individual", "corporate_group"],
+          "maxLength": 32
+        },
+        "candidateCount": {
+          "type": "number"
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["new", "confirmed"],
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "fullName",
+        "organization",
+        "email",
+        "phone",
+        "course",
+        "trainingModel",
+        "candidateCount",
+        "location",
+        "notes",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "RentalBooking": {
+      "title": "RentalBooking",
+      "description": "QRFS equipment or venue rental booking submitted from the Rentals page.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "contactName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "organization": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "items": {
+          "type": "array",
+          "description": "Bounded list of rental equipment items (max 20)."
+        },
+        "eventStartDate": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "eventEndDate": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "venueAddress": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "requiresDriver": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["received", "processed"],
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "contactName",
+        "organization",
+        "phone",
+        "email",
+        "items",
+        "eventStartDate",
+        "eventEndDate",
+        "venueAddress",
+        "state",
+        "requiresDriver",
+        "notes",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CommunityHealthInquiry": {
+      "title": "CommunityHealthInquiry",
+      "description": "Free Monday clinic or community health consultation registration.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "fullName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "phone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "ageBracket": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "preferredConsultationDate": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "healthConcernSummary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "locationState": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "isMondayFreeClinic": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["scheduled", "pending"],
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "fullName",
+        "phone",
+        "email",
+        "ageBracket",
+        "preferredConsultationDate",
+        "healthConcernSummary",
+        "locationState",
+        "isMondayFreeClinic",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/admins/{adminUid}": {
+      "schema": "AdminUser",
+      "description": "Trusted administrator lookup table."
+    },
+    "/siteSettings/{settingId}": {
+      "schema": "SiteSettings",
+      "description": "Publicly readable company brand logo and CEO portrait settings managed by the Admin."
+    },
+    "/photos/{photoId}": {
+      "schema": "PhotoItem",
+      "description": "Publicly readable gallery and homepage operational photos managed by the Bright Light Admin."
+    },
+    "/quotes/{quoteId}": {
+      "schema": "QuoteRequest",
+      "description": "Customer service enquiries created by visitors and read/managed exclusively by the Bright Light Admin."
+    },
+    "/trainings/{trainingId}": {
+      "schema": "TrainingRegistration",
+      "description": "Training enrollments created by visitors and read/managed exclusively by the Bright Light Admin."
+    },
+    "/rentals/{rentalId}": {
+      "schema": "RentalBooking",
+      "description": "Rental bookings created by visitors and read/managed exclusively by the Bright Light Admin."
+    },
+    "/healthInquiries/{inquiryId}": {
+      "schema": "CommunityHealthInquiry",
+      "description": "Monday clinic inquiries created by visitors and read/managed exclusively by the Bright Light Admin."
+    }
+  }
+}

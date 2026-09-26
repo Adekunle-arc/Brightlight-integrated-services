@@ -1,0 +1,381 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // 1. GLOBAL SAFETY NET (Default-Deny Catch-All)
+    // =========================================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // 2. PRIMITIVE HELPERS
+    // =========================================================================
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Bootstrapped Admins: official Bright Light email + runtime user email + explicit /admins/{uid}
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'brightlightintservices@gmail.com' ||
+        request.auth.token.email == 'samadeniran15@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // =========================================================================
+    // 3. VALIDATION BLUEPRINTS (Anti-Update-Gap)
+    // =========================================================================
+    function isValidAdminUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'createdAt']) &&
+        data.keys().hasOnly(['uid', 'email', 'createdAt']) &&
+        data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 && data.uid.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 200 &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidSiteSettings(data) {
+      return data.keys().hasAll([
+          'id', 'logoImage', 'ceoPhoto', 'ceoName', 'ceoTitle',
+          'serviceMedicalImage', 'serviceFumigationImage',
+          'serviceTrainingImage', 'serviceRentalsImage', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'logoImage', 'ceoPhoto', 'ceoName', 'ceoTitle',
+          'serviceMedicalImage', 'serviceFumigationImage',
+          'serviceTrainingImage', 'serviceRentalsImage', 'updatedAt'
+        ]) &&
+        data.id is string && data.id.size() >= 1 && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.logoImage is string && data.logoImage.size() <= 950000 &&
+        data.ceoPhoto is string && data.ceoPhoto.size() >= 1 && data.ceoPhoto.size() <= 950000 &&
+        data.ceoName is string && data.ceoName.size() >= 1 && data.ceoName.size() <= 200 &&
+        data.ceoTitle is string && data.ceoTitle.size() >= 1 && data.ceoTitle.size() <= 200 &&
+        data.serviceMedicalImage is string && data.serviceMedicalImage.size() >= 1 && data.serviceMedicalImage.size() <= 950000 &&
+        data.serviceFumigationImage is string && data.serviceFumigationImage.size() >= 1 && data.serviceFumigationImage.size() <= 950000 &&
+        data.serviceTrainingImage is string && data.serviceTrainingImage.size() >= 1 && data.serviceTrainingImage.size() <= 950000 &&
+        data.serviceRentalsImage is string && data.serviceRentalsImage.size() >= 1 && data.serviceRentalsImage.size() <= 950000 &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidPhotoItem(data) {
+      return data.keys().hasAll([
+          'id', 'title', 'category', 'image', 'description',
+          'location', 'dateTag', 'featuredOnHome', 'isCustomUpload',
+          'authorUid', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'title', 'category', 'image', 'description',
+          'location', 'dateTag', 'featuredOnHome', 'isCustomUpload',
+          'authorUid', 'createdAt', 'updatedAt'
+        ]) &&
+        data.id is string && data.id.size() >= 1 && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 200 &&
+        data.category is string && data.category.size() <= 32 &&
+        (data.category == 'fumigation' || data.category == 'medical' || data.category == 'training' || data.category == 'rentals' || data.category == 'corporate') &&
+        data.image is string && data.image.size() >= 1 && data.image.size() <= 950000 &&
+        data.description is string && data.description.size() >= 1 && data.description.size() <= 2000 &&
+        data.location is string && data.location.size() >= 1 && data.location.size() <= 200 &&
+        data.dateTag is string && data.dateTag.size() >= 1 && data.dateTag.size() <= 100 &&
+        data.featuredOnHome is bool &&
+        data.isCustomUpload is bool &&
+        data.authorUid is string && data.authorUid.size() >= 1 && data.authorUid.size() <= 128 && data.authorUid.matches('^[a-zA-Z0-9_\\-]+$') &&
+        (data.authorUid == 'admin-passkey' || (isSignedIn() && data.authorUid == request.auth.uid)) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidQuoteRequest(data) {
+      return data.keys().hasAll([
+          'id', 'name', 'organization', 'phone', 'email',
+          'services', 'state', 'notes', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'name', 'organization', 'phone', 'email',
+          'services', 'state', 'notes', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.id is string && data.id.size() >= 1 && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 200 &&
+        data.organization is string && data.organization.size() <= 200 &&
+        data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 50 &&
+        data.email is string && data.email.size() >= 1 && data.email.size() <= 200 &&
+        data.services is list && data.services.size() >= 1 && data.services.size() <= 20 &&
+        data.services[0] is string && data.services[0].size() >= 1 && data.services[0].size() <= 100 &&
+        data.state is string && data.state.size() >= 1 && data.state.size() <= 100 &&
+        data.notes is string && data.notes.size() <= 2000 &&
+        data.status is string && data.status.size() <= 32 &&
+        (data.status == 'pending' || data.status == 'reviewed' || data.status == 'contacted') &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidTrainingRegistration(data) {
+      return data.keys().hasAll([
+          'id', 'fullName', 'organization', 'email', 'phone',
+          'course', 'trainingModel', 'candidateCount', 'location',
+          'notes', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'fullName', 'organization', 'email', 'phone',
+          'course', 'trainingModel', 'candidateCount', 'location',
+          'notes', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.id is string && data.id.size() >= 1 && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 200 &&
+        data.organization is string && data.organization.size() <= 200 &&
+        data.email is string && data.email.size() >= 1 && data.email.size() <= 200 &&
+        data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 50 &&
+        data.course is string && data.course.size() >= 1 && data.course.size() <= 250 &&
+        data.trainingModel is string && data.trainingModel.size() <= 32 &&
+        (data.trainingModel == 'individual' || data.trainingModel == 'corporate_group') &&
+        data.candidateCount is int && data.candidateCount >= 1 && data.candidateCount <= 10000 &&
+        data.location is string && data.location.size() >= 1 && data.location.size() <= 200 &&
+        data.notes is string && data.notes.size() <= 2000 &&
+        data.status is string && data.status.size() <= 32 &&
+        (data.status == 'new' || data.status == 'confirmed') &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidRentalBooking(data) {
+      return data.keys().hasAll([
+          'id', 'contactName', 'organization', 'phone', 'email',
+          'items', 'eventStartDate', 'eventEndDate', 'venueAddress',
+          'state', 'requiresDriver', 'notes', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'contactName', 'organization', 'phone', 'email',
+          'items', 'eventStartDate', 'eventEndDate', 'venueAddress',
+          'state', 'requiresDriver', 'notes', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.id is string && data.id.size() >= 1 && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.contactName is string && data.contactName.size() >= 1 && data.contactName.size() <= 200 &&
+        data.organization is string && data.organization.size() <= 200 &&
+        data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 50 &&
+        data.email is string && data.email.size() >= 1 && data.email.size() <= 200 &&
+        data.items is list && data.items.size() >= 1 && data.items.size() <= 20 &&
+        data.items[0] is string && data.items[0].size() >= 1 && data.items[0].size() <= 200 &&
+        data.eventStartDate is string && data.eventStartDate.size() >= 1 && data.eventStartDate.size() <= 64 &&
+        data.eventEndDate is string && data.eventEndDate.size() >= 1 && data.eventEndDate.size() <= 64 &&
+        data.venueAddress is string && data.venueAddress.size() >= 1 && data.venueAddress.size() <= 500 &&
+        data.state is string && data.state.size() >= 1 && data.state.size() <= 100 &&
+        data.requiresDriver is bool &&
+        data.notes is string && data.notes.size() <= 2000 &&
+        data.status is string && data.status.size() <= 32 &&
+        (data.status == 'received' || data.status == 'processed') &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidCommunityHealthInquiry(data) {
+      return data.keys().hasAll([
+          'id', 'fullName', 'phone', 'email', 'ageBracket',
+          'preferredConsultationDate', 'healthConcernSummary',
+          'locationState', 'isMondayFreeClinic', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'fullName', 'phone', 'email', 'ageBracket',
+          'preferredConsultationDate', 'healthConcernSummary',
+          'locationState', 'isMondayFreeClinic', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        data.id is string && data.id.size() >= 1 && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 200 &&
+        data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 50 &&
+        data.email is string && data.email.size() <= 200 &&
+        data.ageBracket is string && data.ageBracket.size() <= 64 &&
+        data.preferredConsultationDate is string && data.preferredConsultationDate.size() <= 64 &&
+        data.healthConcernSummary is string && data.healthConcernSummary.size() >= 1 && data.healthConcernSummary.size() <= 2000 &&
+        data.locationState is string && data.locationState.size() >= 1 && data.locationState.size() <= 100 &&
+        data.isMondayFreeClinic is bool &&
+        data.status is string && data.status.size() <= 32 &&
+        (data.status == 'scheduled' || data.status == 'pending') &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    // =========================================================================
+    // 4. COLLECTION MATCH BLOCKS
+    // =========================================================================
+
+    // Admin Registry
+    match /admins/{adminUid} {
+      allow get: if isValidId(adminUid) && isAdmin();
+      allow list: if false;
+      allow create: if isSignedIn() &&
+        isValidId(adminUid) &&
+        isValidAdminUser(incoming()) &&
+        incoming().uid == adminUid &&
+        incoming().createdAt == request.time &&
+        isAdmin();
+      allow update, delete: if false;
+    }
+
+    // Site Settings (Company Logo, CEO Profile & 4 Service Division Pictures - Publicly readable, Admin/Passkey editable)
+    match /siteSettings/{settingId} {
+      allow get: if isValidId(settingId);
+      allow list: if resource.data.id == 'global';
+      allow create: if isValidId(settingId) &&
+        isValidSiteSettings(incoming()) &&
+        incoming().id == settingId &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(settingId) &&
+        isValidSiteSettings(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'logoImage', 'ceoPhoto', 'ceoName', 'ceoTitle',
+          'serviceMedicalImage', 'serviceFumigationImage',
+          'serviceTrainingImage', 'serviceRentalsImage', 'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // Operational Photos (Publicly viewable on website via category query, Admin/Passkey write)
+    match /photos/{photoId} {
+      allow get: if isValidId(photoId);
+      allow list: if resource.data.category == 'fumigation' ||
+        resource.data.category == 'medical' ||
+        resource.data.category == 'training' ||
+        resource.data.category == 'rentals' ||
+        resource.data.category == 'corporate';
+      allow create: if isValidId(photoId) &&
+        isValidPhotoItem(incoming()) &&
+        incoming().id == photoId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(photoId) &&
+        isValidPhotoItem(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'category', 'image', 'description',
+          'location', 'dateTag', 'featuredOnHome', 'isCustomUpload', 'authorUid', 'updatedAt'
+        ]);
+      allow delete: if isValidId(photoId) && (
+        isAdmin() ||
+        resource.data.category == 'fumigation' ||
+        resource.data.category == 'medical' ||
+        resource.data.category == 'training' ||
+        resource.data.category == 'rentals' ||
+        resource.data.category == 'corporate'
+      );
+    }
+
+    // Customer Enquiries / Quotes
+    match /quotes/{quoteId} {
+      allow get: if isValidId(quoteId);
+      allow list: if resource.data.status == 'pending' ||
+        resource.data.status == 'reviewed' ||
+        resource.data.status == 'contacted';
+      allow create: if isValidId(quoteId) &&
+        isValidQuoteRequest(incoming()) &&
+        incoming().id == quoteId &&
+        incoming().status == 'pending' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(quoteId) &&
+        isValidQuoteRequest(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+      allow delete: if isValidId(quoteId) && (
+        isAdmin() ||
+        resource.data.status == 'pending' ||
+        resource.data.status == 'reviewed' ||
+        resource.data.status == 'contacted'
+      );
+    }
+
+    // Healthcare Training Registrations
+    match /trainings/{trainingId} {
+      allow get: if isValidId(trainingId);
+      allow list: if resource.data.status == 'new' ||
+        resource.data.status == 'confirmed';
+      allow create: if isValidId(trainingId) &&
+        isValidTrainingRegistration(incoming()) &&
+        incoming().id == trainingId &&
+        incoming().status == 'new' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(trainingId) &&
+        isValidTrainingRegistration(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+      allow delete: if isValidId(trainingId) && (
+        isAdmin() ||
+        resource.data.status == 'new' ||
+        resource.data.status == 'confirmed'
+      );
+    }
+
+    // QRFS Equipment Rental Bookings
+    match /rentals/{rentalId} {
+      allow get: if isValidId(rentalId);
+      allow list: if resource.data.status == 'received' ||
+        resource.data.status == 'processed';
+      allow create: if isValidId(rentalId) &&
+        isValidRentalBooking(incoming()) &&
+        incoming().id == rentalId &&
+        incoming().status == 'received' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(rentalId) &&
+        isValidRentalBooking(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+      allow delete: if isValidId(rentalId) && (
+        isAdmin() ||
+        resource.data.status == 'received' ||
+        resource.data.status == 'processed'
+      );
+    }
+
+    // Community Health / Free Monday Clinic Inquiries
+    match /healthInquiries/{inquiryId} {
+      allow get: if isValidId(inquiryId);
+      allow list: if resource.data.status == 'scheduled' ||
+        resource.data.status == 'pending';
+      allow create: if isValidId(inquiryId) &&
+        isValidCommunityHealthInquiry(incoming()) &&
+        incoming().id == inquiryId &&
+        incoming().status == 'scheduled' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isValidId(inquiryId) &&
+        isValidCommunityHealthInquiry(incoming()) &&
+        incoming().id == existing().id &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+      allow delete: if isValidId(inquiryId) && (
+        isAdmin() ||
+        resource.data.status == 'scheduled' ||
+        resource.data.status == 'pending'
+      );
+    }
+  }
+}
