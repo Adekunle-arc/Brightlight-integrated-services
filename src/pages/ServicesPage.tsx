@@ -3,7 +3,6 @@ import { COMPANY_INFO } from '../data/companyData';
 import { ASSETS } from '../data/assets';
 import { DataService, SiteSettings } from '../services/dataService';
 import { OfficialServiceBadges } from '../components/OfficialServiceBadges';
-import { FieldOperationsGallery } from '../components/FieldOperationsGallery';
 import { PestControlCampaign } from '../components/PestControlCampaign';
 import {
   Stethoscope,
@@ -307,9 +306,6 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
 
           {/* Official Campaign Block */}
           <PestControlCampaign onScheduleFumigation={() => openQuoteModal('fum-pest')} />
-
-          {/* Real Field Operational Protocols */}
-          <FieldOperationsGallery />
         </section>
       )}
 

@@ -83,53 +83,22 @@ export const HomePage: React.FC<HomePageProps> = ({
     }
   ];
 
-  // Dynamic photos for Homepage: prefer featured photos (up to 4), falling back to recent photos
+  // Single featured photo for Homepage (all Field Operations Gallery items live on the Gallery page)
   const featuredList = photos.filter((p) => p.featuredOnHome);
   const sourcePhotos = featuredList.length > 0 ? featuredList : photos;
-  const homeDisplayPhotos = sourcePhotos.length > 0
-    ? sourcePhotos.slice(0, 4)
-    : [
-        {
-          id: 'def-1',
-          title: 'Outdoor Perimeter Thermal Fogging',
-          category: 'fumigation' as const,
-          image: ASSETS.outdoorThermalFogging,
-          description: 'Mosquito & Vector Knockdown',
-          location: 'Ogun & Lagos',
-          dateTag: 'Vector Control',
-          createdAt: ''
-        },
-        {
-          id: 'def-2',
-          title: 'Attic & Roof Timber Termite Treatment',
-          category: 'fumigation' as const,
-          image: ASSETS.roofTermiteTreatment,
-          description: 'Structural Preservation',
-          location: 'Estate Premises',
-          dateTag: 'Timber Care',
-          createdAt: ''
-        },
-        {
-          id: 'def-3',
-          title: 'Building Foundation Barrier Spray',
-          category: 'fumigation' as const,
-          image: ASSETS.perimeterFoundationSpray,
-          description: 'Subterranean Perimeter Defense',
-          location: 'Commercial Building',
-          dateTag: 'Barrier Shield',
-          createdAt: ''
-        },
-        {
-          id: 'def-4',
-          title: 'Precision Window & Runner Misting',
-          category: 'fumigation' as const,
-          image: ASSETS.windowPrecisionMisting,
-          description: 'Zero-Residue Crevice Treatment',
-          location: 'Office Complex',
-          dateTag: 'Precision Misting',
-          createdAt: ''
-        }
-      ];
+  const featuredOperationPhoto = sourcePhotos.length > 0
+    ? sourcePhotos[0]
+    : {
+        id: 'def-1',
+        title: 'Outdoor Perimeter Thermal Fogging',
+        category: 'fumigation' as const,
+        image: ASSETS.outdoorThermalFogging,
+        description: 'Mosquito & Vector Knockdown',
+        location: 'Ogun & Lagos',
+        dateTag: 'Vector Control',
+        createdAt: '',
+        isCustomUpload: false
+      };
 
   return (
     <div className="bg-slate-50 text-slate-900 space-y-8 md:space-y-10 pb-10">
@@ -270,63 +239,67 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 3. Real Field Operations Showcase (Dynamic photos with instant upload integration) */}
+      {/* 3. Real Field Operations Showcase (Single featured photo on Home; full gallery in Website Gallery) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-slate-900 text-white rounded-2xl p-5 sm:p-7 shadow-lg space-y-5">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-1">
+        <div className="bg-slate-900 text-white rounded-2xl p-5 sm:p-7 shadow-lg">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div className="lg:col-span-7 space-y-3">
               <span className="text-xs font-mono font-bold tracking-widest uppercase text-amber-400">
                 Operational Evidence
               </span>
               <h2 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
                 Field Operations in Action
               </h2>
-              <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-                Real photos from our ongoing fumigation treatments, pest eradication campaigns, healthcare outreaches, and structural preservation contracts.
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
+                Real documentation from our ongoing fumigation treatments, pest eradication campaigns, healthcare outreaches, and structural preservation contracts. Visit our full gallery to explore all on-site deployments and technical protocols.
               </p>
+              <div className="pt-2">
+                <button
+                  onClick={() => setCurrentPage('gallery')}
+                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold uppercase tracking-wider rounded-lg inline-flex items-center gap-2 transition-colors cursor-pointer"
+                >
+                  <span>View Full Website Gallery</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            <button
-              onClick={() => setCurrentPage('gallery')}
-              className="text-xs font-bold text-amber-400 hover:text-amber-300 inline-flex items-center gap-1 cursor-pointer shrink-0"
-            >
-              <span>View Full Photo Gallery</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Photo Gallery Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {homeDisplayPhotos.map((item) => (
+            {/* Single Featured Field Operation Picture */}
+            <div className="lg:col-span-5">
               <div
-                key={item.id}
-                className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700/80 group hover:border-amber-400/50 transition-colors flex flex-col"
+                onClick={() => setCurrentPage('gallery')}
+                className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700/80 group hover:border-amber-400/50 transition-colors cursor-pointer"
               >
-                <div className="relative h-36 sm:h-44 overflow-hidden bg-slate-900">
+                <div className="relative h-48 sm:h-56 overflow-hidden bg-slate-900">
                   <img
-                    src={item.image}
-                    alt={item.title}
+                    src={featuredOperationPhoto.image}
+                    alt={featuredOperationPhoto.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute bottom-2 left-2 bg-slate-950/80 text-amber-300 text-[10px] font-mono px-2 py-0.5 rounded">
-                    {item.dateTag}
+                  <div className="absolute bottom-2.5 left-2.5 bg-slate-950/85 text-amber-300 text-[10px] font-mono px-2.5 py-0.5 rounded">
+                    {featuredOperationPhoto.dateTag}
                   </div>
-                  {item.isCustomUpload && (
-                    <div className="absolute top-2 right-2 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                      New
+                  {featuredOperationPhoto.isCustomUpload && (
+                    <div className="absolute top-2.5 right-2.5 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded">
+                      Featured
                     </div>
                   )}
                 </div>
-                <div className="p-3.5 space-y-1 flex-1 flex flex-col justify-between">
-                  <h4 className="text-xs font-bold text-white leading-snug line-clamp-2">
-                    {item.title}
-                  </h4>
-                  <p className="text-[11px] text-slate-400 line-clamp-1">
-                    {item.location}
-                  </p>
+                <div className="p-3.5 flex items-center justify-between gap-2">
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-white leading-snug line-clamp-1">
+                      {featuredOperationPhoto.title}
+                    </h4>
+                    <p className="text-[11px] text-slate-400 line-clamp-1">
+                      {featuredOperationPhoto.location}
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-bold text-amber-400 shrink-0">
+                    See All &rarr;
+                  </span>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
@@ -336,14 +309,14 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-7 shadow-xs">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-center">
             {/* Leadership Image */}
-            <div className="lg:col-span-4 max-w-xs sm:max-w-sm mx-auto lg:max-w-none w-full">
+            <div className="lg:col-span-5 max-w-sm sm:max-w-md mx-auto lg:max-w-none w-full">
               <div className="relative rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900">
                 <img
                   src={siteSettings.ceoPhoto || ASSETS.medicalDoctors}
                   alt={`${siteSettings.ceoName || COMPANY_INFO.ceo.name} - CEO`}
-                  className="w-full h-52 sm:h-68 object-contain sm:object-cover object-top bg-slate-900"
+                  className="w-full h-64 sm:h-80 object-cover object-top bg-slate-900"
                 />
-                <div className="p-3 bg-slate-900 text-white border-t border-slate-800">
+                <div className="p-3.5 bg-slate-900 text-white border-t border-slate-800">
                   <h4 className="text-xs sm:text-sm font-bold">{siteSettings.ceoName || 'Dr. Okezie Eze Miracle (PhD, ACLS, CFA)'}</h4>
                   <p className="text-[11px] sm:text-xs text-amber-400 mt-0.5">{siteSettings.ceoTitle || 'Director / CEO · Bright Light Integrated Services'}</p>
                 </div>
@@ -351,7 +324,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             </div>
 
             {/* Leadership Text */}
-            <div className="lg:col-span-8 space-y-3 sm:space-y-4">
+            <div className="lg:col-span-7 space-y-3 sm:space-y-4">
               <span className="text-[11px] sm:text-xs font-mono font-bold tracking-widest uppercase text-amber-700 block">
                 Executive Leadership &amp; Governance
               </span>

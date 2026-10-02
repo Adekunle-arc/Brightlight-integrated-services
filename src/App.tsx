@@ -4,10 +4,12 @@
  */
 
 import React, { useState } from 'react';
+import { MessageCircle } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { QuoteModal } from './components/QuoteModal';
 import { AdminPortalModal } from './components/AdminPortalModal';
+import { COMPANY_INFO } from './data/companyData';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -18,7 +20,6 @@ import { RentalsPage } from './pages/RentalsPage';
 import { ClientsPage } from './pages/ClientsPage';
 import { GalleryPage } from './pages/GalleryPage';
 import { ContactPage } from './pages/ContactPage';
-import { AdminPage } from './pages/AdminPage';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<string>('home');
@@ -85,12 +86,6 @@ export default function App() {
             openQuoteModal={handleOpenQuoteModal}
           />
         );
-      case 'admin':
-        return (
-          <AdminPage
-            setCurrentPage={setCurrentPage}
-          />
-        );
       default:
         return (
           <HomePage
@@ -122,6 +117,20 @@ export default function App() {
         openQuoteModal={handleOpenQuoteModal}
         openAdminModal={() => setIsAdminModalOpen(true)}
       />
+
+      {/* Floating WhatsApp Quick-Chat Button */}
+      <a
+        href={`https://wa.me/${COMPANY_INFO.whatsapp}?text=${encodeURIComponent('Hello Bright Light Integrated Services, I would like to make an enquiry.')}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat with us on WhatsApp"
+        className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white px-3.5 py-3 sm:px-4 sm:py-3 rounded-full shadow-lg hover:shadow-xl transition-all group border border-emerald-400/30"
+      >
+        <MessageCircle className="w-5 h-5 sm:w-5 sm:h-5 fill-white/15 shrink-0" />
+        <span className="text-xs font-bold tracking-wide pr-0.5">
+          Chat on WhatsApp
+        </span>
+      </a>
 
       {/* Service Enquiry / Requisition Modal */}
       <QuoteModal

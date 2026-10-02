@@ -181,11 +181,11 @@ export const AboutPage: React.FC<AboutPageProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Visual Column */}
             <div className="lg:col-span-5 space-y-4">
-              <div className="max-w-xs sm:max-w-sm mx-auto lg:max-w-none rounded-xl overflow-hidden border border-slate-300 shadow-lg bg-slate-900">
+              <div className="max-w-sm sm:max-w-md mx-auto lg:max-w-none rounded-xl overflow-hidden border border-slate-300 shadow-lg bg-slate-900">
                 <img
                   src={siteSettings.ceoPhoto || ASSETS.medicalDoctors}
                   alt={siteSettings.ceoName || 'Dr. Okezie Eze Miracle (PhD, ACLS, CFA)'}
-                  className="w-full h-56 sm:h-80 object-contain sm:object-cover object-top bg-slate-900"
+                  className="w-full h-72 sm:h-88 object-cover object-top bg-slate-900"
                   referrerPolicy="no-referrer"
                 />
                 <div className="p-4 border-t border-slate-200 bg-white">

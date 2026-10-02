@@ -161,7 +161,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({ openQuoteModal }) => {
             Accreditations, Affiliations &amp; Professional Memberships
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-2">
-            Verified institutional registrations and memberships across national and global bodies (Pages 11-12 of Corporate Profile).
+            Verified institutional registrations and memberships across national and global regulatory bodies.
           </p>
         </div>
 
